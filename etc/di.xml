@@ -1,0 +1,221 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Enforce Elasticsuite context (virtualType defined above) into the Layer. Otherwise the Magento_Elasticsearch module would take precedence -->
+    <type name="Magento\Catalog\Model\Layer\Search">
+        <arguments>
+            <argument name="context" xsi:type="object">Magento\CatalogSearch\Model\Layer\Search\Context</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Catalog\Model\Layer\Category">
+        <arguments>
+            <argument name="context" xsi:type="object">Magento\CatalogSearch\Model\Layer\Category\Context</argument>
+        </arguments>
+    </type>
+    <!-- End of enforcing context. -->
+
+
+    <!-- adiciona engine e exibe no painel -->
+    <type name="Magento\Search\Model\Adminhtml\System\Config\Source\Engine">
+        <arguments>
+            <argument name="engines" xsi:type="array">
+                <item name="solr" xsi:type="string">Solr</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- adiciona engine a listagem e define como padrao -->
+    <type name="Magento\Search\Model\EngineResolver">
+        <arguments>
+            <argument name="engines" xsi:type="array">
+                <item name="solr" xsi:type="string">solr</item>
+            </argument>
+            <argument name="defaultEngine" xsi:type="string">solr</argument>
+        </arguments>
+    </type>
+
+    <!-- adiciona o client a factory usada no resolver -->
+    <virtualType name="TadeuRodrigues\Solr\Model\Client\NewSearchEngineFactory" type="Magento\AdvancedSearch\Model\Client\ClientFactory">
+        <arguments>
+            <argument name="clientClass" xsi:type="string">TadeuRodrigues\Solr\Model\Client\Solr</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\AdvancedSearch\Model\Client\ClientResolver">
+        <arguments>
+            <argument name="clientFactories" xsi:type="array">
+                <item name="solr" xsi:type="string">TadeuRodrigues\Solr\Model\Client\NewSearchEngineFactory</item>
+            </argument>
+            <argument name="clientOptions" xsi:type="array">
+                <item name="solr" xsi:type="string">TadeuRodrigues\Solr\Model\Config</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\CatalogSearch\Model\ResourceModel\EngineProvider">
+        <arguments>
+            <argument name="engines" xsi:type="array">
+                <item name="solr" xsi:type="string">TadeuRodrigues\Solr\Model\ResourceModel\Engine</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- indexando dados -->
+    <preference for="TadeuRodrigues\Solr\Model\Adapter\BatchDataMapperInterface" type="TadeuRodrigues\Solr\Model\Adapter\BatchDataMapper\DataMapperResolver" />
+    <preference for="TadeuRodrigues\Solr\Model\Adapter\FieldMapperInterface" type="TadeuRodrigues\Solr\Model\Adapter\FieldMapper\FieldMapperResolver" />
+    <type name="TadeuRodrigues\Solr\Model\Adapter\BatchDataMapper\DataMapperFactory">
+        <arguments>
+            <argument name="dataMappers" xsi:type="array">
+                <item name="product" xsi:type="string">TadeuRodrigues\Solr\Model\Adapter\BatchDataMapper\ProductDataMapper</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="additionalFieldsProviderForSolr" type="Magento\AdvancedSearch\Model\Adapter\DataMapper\AdditionalFieldsProvider">
+        <arguments>
+            <argument name="fieldsProviders" xsi:type="array">
+                <!-- <item name="categories" xsi:type="object">Magento\Elasticsearch\Elasticsearch5\Model\Adapter\BatchDataMapper\CategoryFieldsProviderProxy</item> -->
+                <!-- <item name="prices" xsi:type="object">Magento\Elasticsearch\Model\Adapter\BatchDataMapper\PriceFieldsProvider</item> -->
+                <item name="prices" xsi:type="object">TadeuRodrigues\Solr\Model\Adapter\BatchDataMapper\NoneFieldsProvider</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="TadeuRodrigues\Solr\Model\Adapter\BatchDataMapper\ProductDataMapper">
+        <arguments>
+            <argument name="additionalFieldsProvider" xsi:type="object">additionalFieldsProviderForSolr</argument>
+            <argument name="filterableAttributeTypes" xsi:type="array">
+                <item name="boolean" xsi:type="string">boolean</item>
+                <item name="multiselect" xsi:type="string">multiselect</item>
+                <item name="select" xsi:type="string">select</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Elasticsearch\Model\Adapter\FieldMapper\FieldMapperResolver">
+        <arguments>
+            <argument name="fieldMappers" xsi:type="array">
+                <item name="product" xsi:type="string">Magento\Elasticsearch\Elasticsearch5\Model\Adapter\FieldMapper\ProductFieldMapperProxy</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- preparando para indexar dados -->
+    <preference for="TadeuRodrigues\Solr\Api\Index\DataSourceResolverInterface" type="TadeuRodrigues\Solr\Index\DataSourceResolver"/>
+<!--    <type name="TadeuRodrigues\Solr\Index\DataSourceResolver">
+        <arguments>
+            <argument name="datasources" xsi:type="array">
+                <item name="catalog_product" xsi:type="array">
+                    <item name="attributes" xsi:type="object"></item>
+                </item>
+            </argument>
+        </arguments>
+    </type>-->
+    <!-- fim do preparo -->
+    <!-- cria o handler para indexar dados -->
+    <type name="Magento\CatalogSearch\Model\Indexer\IndexerHandlerFactory">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="solr" xsi:type="string">TadeuRodrigues\Solr\Model\Indexer\IndexerHandler</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- end data indexer -->
+
+    <!-- cria o handler de strutura para o index -->
+    <type name="Magento\CatalogSearch\Model\Indexer\IndexStructureFactory">
+        <arguments>
+            <argument name="structures" xsi:type="array">
+                <item name="solr" xsi:type="string">TadeuRodrigues\Solr\Model\Indexer\IndexStructure</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- adapter para o solr -->
+    <type name="TadeuRodrigues\Solr\Model\Adapter\Solr">
+        <arguments>
+            <argument name="connectionManager" xsi:type="object">TadeuRodrigues\Solr\Model\Adapter\ConnectionManager</argument>
+        </arguments>
+    </type>
+
+    <type name="TadeuRodrigues\Solr\Model\Adapter\ConnectionManager">
+        <arguments>
+            <argument name="clientFactory" xsi:type="object">TadeuRodrigues\Solr\Model\Client\ClientFactoryProxy</argument>
+            <argument name="clientConfig" xsi:type="object">TadeuRodrigues\Solr\Model\Config</argument>
+        </arguments>
+    </type>
+
+    <type name="TadeuRodrigues\Solr\Model\Client\ClientFactoryProxy">
+        <arguments>
+            <argument name="clientFactories" xsi:type="array">
+                <item name="solr" xsi:type="object">TadeuRodrigues\Solr\Model\Client\SolrFactory</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <virtualType name="TadeuRodrigues\Solr\Model\Client\SolrFactory" type="Magento\AdvancedSearch\Model\Client\ClientFactory">
+        <arguments>
+            <argument name="clientClass" xsi:type="string">TadeuRodrigues\Solr\Model\Client\Solr</argument>
+        </arguments>
+    </virtualType>
+    <!-- end adapter -->
+
+    <!-- define o provider de collection(usado na busca avançada) -->
+    <type name="Magento\CatalogSearch\Model\Search\ItemCollectionProvider">
+        <arguments>
+            <argument name="factories" xsi:type="array">
+                <item name="solr" xsi:type="object">solrAdvancedCollectionFactory</item>
+                <item name="default" xsi:type="object">solrAdvancedCollectionFactory</item>
+            </argument>
+        </arguments>
+    </type>
+    <!-- cria a factory para carregar a classe -->
+    <virtualType name="solrAdvancedCollectionFactory" type="Magento\CatalogSearch\Model\ResourceModel\Advanced\CollectionFactory">
+        <arguments>
+            <argument name="instanceName" xsi:type="string">solrAdvancedCollection</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="solrAdvancedCollection" type="Magento\CatalogSearch\Model\ResourceModel\Advanced\Collection">
+        <arguments>
+            <argument name="searchRequestName" xsi:type="string">advanced_search_container</argument>
+            <argument name="searchCriteriaResolverFactory" xsi:type="object">solrSearchCriteriaResolverFactory</argument>
+            <argument name="searchResultApplierFactory" xsi:type="object">solrSearchResultApplier\Factory</argument>
+            <argument name="totalRecordsResolverFactory" xsi:type="object">solrTotalRecordsResolver\Factory</argument>
+            <argument name="defaultFilterStrategyApplyChecker" xsi:type="object">TadeuRodrigues\Solr\Model\ResourceModel\Fulltext\Collection\DefaultFilterStrategyApplyChecker</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="solrSearchCriteriaResolverFactory" type="Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchCriteriaResolverFactory">
+        <arguments>
+            <argument name="instanceName" xsi:type="string">TadeuRodrigues\Solr\Model\ResourceModel\Fulltext\Collection\SearchCriteriaResolver</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="solrSearchResultApplier\Factory" type="Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\SearchResultApplierFactory">
+        <arguments>
+            <argument name="instanceName" xsi:type="string">TadeuRodrigues\Solr\Model\ResourceModel\Fulltext\Collection\SearchResultApplier</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="solrTotalRecordsResolver\Factory" type="Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection\TotalRecordsResolverFactory">
+        <arguments>
+            <argument name="instanceName" xsi:type="string">Magento\Elasticsearch\Model\ResourceModel\Fulltext\Collection\TotalRecordsResolver</argument>
+        </arguments>
+    </virtualType>
+    <!-- end provider -->
+
+    <!-- start search -->
+    <virtualType name="TadeuRodrigues\Solr\SearchAdapter\ProductEntityMetadata" type="Magento\Framework\Search\EntityMetadata">
+        <arguments>
+            <argument name="entityId" xsi:type="string">entity_id</argument>
+        </arguments>
+    </virtualType>
+    <type name="TadeuRodrigues\Solr\SearchAdapter\DocumentFactory">
+        <arguments>
+            <argument name="entityMetadata" xsi:type="object">TadeuRodrigues\Solr\SearchAdapter\ProductEntityMetadata</argument>
+        </arguments>
+    </type>
+    <!-- end search -->
+
+    <!-- adapter de busca(usado no frontend) -->
+    <type name="Magento\Search\Model\AdapterFactory">
+        <arguments>
+            <argument name="adapters" xsi:type="array">
+                <item name="solr" xsi:type="string">TadeuRodrigues\Solr\SearchAdapter\Adapter</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

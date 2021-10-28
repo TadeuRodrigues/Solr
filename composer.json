@@ -1,0 +1,25 @@
+{
+    "name": "tadeurodrigues/module-solr",
+    "description": "N/A",
+    "type": "magento2-module",
+    "license": "GPL-3.0",
+    "version": "100.0.0",
+    "authors": [
+        {
+            "name": "Tadeu Rodrigues",
+            "email": "karlostadeu85@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "~7.4.0",
+        "solarium/solarium": "~6.1"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "TadeuRodrigues\\Solr\\": ""
+        }
+    }
+}

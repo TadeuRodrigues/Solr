@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <catalog>
+            <search>
+                <!-- <engine>solr</engine> -->
+                <solr_server_hostname>solr</solr_server_hostname>
+                <solr_server_port>8983</solr_server_port>
+                <solr_index_prefix>magento2</solr_index_prefix>
+                <solr_enable_auth>0</solr_enable_auth>
+                <solr_server_timeout>15</solr_server_timeout>
+            </search>
+        </catalog>
+    </default>
+</config>

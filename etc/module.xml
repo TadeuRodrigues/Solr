@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="TadeuRodrigues_Solr">
+        <sequence>
+            <module name="Magento_Search"/>
+            <module name="Magento_CatalogSearch"/>
+            <module name="Magento_AdvancedSearch"/>
+            <module name="Magento_LayeredNavigation" />
+            <module name="Magento_CatalogInventory" />
+            <module name="Magento_LayeredNavigationStaging" />
+            <module name="Magento_InventorySalesApi" />
+            <module name="Magento_InventorySales" />
+            <module name="Magento_InventoryIndexer" />
+            <module name="Magento_Elasticsearch" />
+        </sequence>
+    </module>
+</config>

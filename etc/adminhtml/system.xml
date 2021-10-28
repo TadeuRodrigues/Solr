@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="catalog">
+            <group id="search">
+                <field id="solr_server_hostname" translate="label" type="text" sortOrder="61"
+                       showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Solr Server Hostname</label>
+                    <depends>
+                        <field id="engine">solr</field>
+                    </depends>
+                </field>
+
+                <field id="solr_server_port" translate="label" type="text" sortOrder="62" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Solr Server Port</label>
+                    <depends>
+                        <field id="engine">solr</field>
+                    </depends>
+                </field>
+
+                <field id="solr_enable_auth" translate="label" type="select" sortOrder="64" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Enable Solr HTTP Auth</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="engine">solr</field>
+                    </depends>
+                </field>
+
+                <field id="solr_username" translate="label" type="text" sortOrder="65" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Solr Username</label>
+                    <depends>
+                        <field id="engine">solr</field>
+                        <field id="solr_enable_auth">1</field>
+                    </depends>
+                </field>
+
+                <field id="solr_password" translate="label" type="text" sortOrder="66" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Solr Password</label>
+                    <depends>
+                        <field id="engine">solr</field>
+                        <field id="solr_enable_auth">1</field>
+                    </depends>
+                </field>
+
+                <field id="solr_server_timeout" translate="label" type="text" sortOrder="67" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Solr Server Timeout</label>
+                    <depends>
+                        <field id="engine">solr</field>
+                    </depends>
+                </field>
+
+                <field id="solr_test_connect_wizard" translate="button_label" sortOrder="68" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <button_label>Test Connection</button_label>
+                    <frontend_model>TadeuRodrigues\Solr\Block\Adminhtml\System\Config\TestConnection</frontend_model>
+                    <depends>
+                        <field id="engine">solr</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
