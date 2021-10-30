@@ -47,18 +47,19 @@ class Adapter implements AdapterInterface
      */
     public function query(RequestInterface $request)
     {
+        // TODO: implementar query module-elasticsearch-7/SearchAdapter/Adapter.php:109
         try {
-            $response = $this->doSearch($request);
+            $rawResponse = $this->doSearch($request);
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
         }
 
-        // TODO: implementar query module-elasticsearch-7/SearchAdapter/Adapter.php:109
+        $rawDocuments = $rawResponse['documents'] ?? [];
         $queryResponse = $this->responseFactory->create(
             [
-                'documents' => $response['documents'],
+                'documents' => $rawDocuments,
                 'aggregations' => [],
-                'total' => $response['total']
+                'total' => $rawResponse['total'] ?? 0
             ]
         );
 
