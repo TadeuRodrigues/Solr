@@ -95,11 +95,11 @@ class IndexerHandler implements IndexerInterface
         $dimension = current($dimensions);
         $scopeId = (int)$this->scopeResolver->getScope((int)$dimension->getValue())->getId();
 
-        foreach ($this->batch->getItems($documents, $this->batchSize) as $documentsBatch) {
+        foreach ($this->batch->getItems($documents, $this->batchSize) as $batchDocuments) {
             // TODO: captura o produto
 
             foreach ($this->getDataSources() as $dataSource) {
-                if (!empty($documentsBatch)) {
+                if (!empty($batchDocuments)) {
                     $batchDocuments = $dataSource->addData($scopeId, $batchDocuments);
                 }
             }

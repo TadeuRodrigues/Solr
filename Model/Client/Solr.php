@@ -218,7 +218,7 @@ class Solr implements ClientInterface
         $query = $client->createSelect();
 
         $facetSet = $query->getFacetSet();
-        $facetSet->createFacetQuery('stock')->setQuery('is_in_stock: true');
+        $facetSet->createFacetQuery('stock_bucket')->setQuery('is_in_stock: 1');
 
         $query->setQuery('*:*');
         $resultset = $client->select($query)->getResponse();

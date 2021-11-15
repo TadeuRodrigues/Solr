@@ -5,7 +5,8 @@ namespace TadeuRodrigues\Solr\SearchAdapter;
 
 use Magento\Framework\Search\AdapterInterface;
 use Magento\Framework\Search\RequestInterface;
-use Magento\Framework\Search\Response\QueryResponse;
+use TadeuRodrigues\Solr\SearchAdapter\Response\QueryResponse;
+use TadeuRodrigues\Solr\SearchAdapter\Response\QueryResponseFactory;
 use TadeuRodrigues\Solr\Model\Adapter\ConnectionManager;
 use TadeuRodrigues\Solr\Model\Client\Solr as Client;
 use Psr\Log\LoggerInterface;
@@ -18,9 +19,9 @@ class Adapter implements AdapterInterface
     protected ConnectionManager $connectionManager;
 
     /**
-     * @var ResponseFactory
+     * @var QueryResponseFactory
      */
-    protected ResponseFactory $responseFactory;
+    protected QueryResponseFactory $responseFactory;
 
     /**
      * @var LoggerInterface
@@ -29,12 +30,12 @@ class Adapter implements AdapterInterface
 
     /**
      * @param ConnectionManager $connectionManager
-     * @param ResponseFactory $responseFactory
+     * @param QueryResponseFactory $responseFactory
      * @param LoggerInterface $logger
      */
     public function __construct(
         ConnectionManager $connectionManager,
-        ResponseFactory $responseFactory,
+        QueryResponseFactory $responseFactory,
         LoggerInterface $logger
     ) {
         $this->connectionManager = $connectionManager;
@@ -48,24 +49,20 @@ class Adapter implements AdapterInterface
     public function query(RequestInterface $request)
     {
         // TODO: implementar query module-elasticsearch-7/SearchAdapter/Adapter.php:109
+        $searchResponse = [];
         try {
-            $rawResponse = $this->doSearch($request);
+            $searchResponse = $this->doSearch($request);
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
         }
 
-        $rawDocuments = $rawResponse['documents'] ?? [];
-        $queryResponse = $this->responseFactory->create(
-            [
-                'documents' => $rawDocuments,
-                'aggregations' => [],
-                'total' => $rawResponse['total'] ?? 0
-            ]
-        );
-
-        return $queryResponse;
+        return $this->responseFactory->create(['searchResponse' => $searchResponse]);
     }
 
+    /**
+     * @param RequestInterface $request
+     * @return array
+     */
     private function doSearch(RequestInterface $request): array
     {
         $searchRequest = [
@@ -80,18 +77,18 @@ class Adapter implements AdapterInterface
         return $this->prepareResponse($resultset);
     }
 
+    /**
+     * @param string $resultset
+     * @return array
+     */
     private function prepareResponse(string $resultset): array
     {
-        $resultObj = json_decode($resultset);
+        $resultData = json_decode($resultset, true);
 
         return [
-            'documents' => $resultObj->response->docs,
-            'total' => $resultObj->response->numFound
+            'documents' => $resultData['response']['docs'],
+            'aggregations' => $resultData["facet_counts"]["facet_queries"],
+            'total' => $resultData['response']['numFound']
         ];
-    }
-
-    private function prepareSearchQuery(RequestInterface $request)
-    {
-
     }
 }

@@ -98,21 +98,42 @@
     </type>
     <!-- preparando para indexar dados -->
     <preference for="TadeuRodrigues\Solr\Api\Index\DataSourceResolverInterface" type="TadeuRodrigues\Solr\Index\DataSourceResolver"/>
-<!--    <type name="TadeuRodrigues\Solr\Index\DataSourceResolver">
+    <!-- Datasources resolver -->
+    <type name="TadeuRodrigues\Solr\Index\DataSourceResolver">
         <arguments>
             <argument name="datasources" xsi:type="array">
                 <item name="catalog_product" xsi:type="array">
-                    <item name="attributes" xsi:type="object"></item>
+                    <!-- <item name="prices" xsi:type="object">Smile\ElasticsuiteCatalog\Model\Product\Indexer\Fulltext\Datasource\PriceData</item> -->
+                    <!-- <item name="categories" xsi:type="object">Smile\ElasticsuiteCatalog\Model\Product\Indexer\Fulltext\Datasource\CategoryData</item> -->
+                    <item name="attributes" xsi:type="object">TadeuRodrigues\Solr\Model\Product\Indexer\Fulltext\Datasource\AttributeData</item>
+                    <!-- <item name="stock" xsi:type="object">Smile\ElasticsuiteCatalog\Model\Product\Indexer\Fulltext\Datasource\InventoryData</item> -->
+                    <!-- <item name="searchPositions" xsi:type="object">Smile\ElasticsuiteCatalog\Model\Product\Indexer\Fulltext\Datasource\SearchPositionData</item> -->
                 </item>
+                <!-- <item name="catalog_category" xsi:type="array">
+                    <item name="attributes" xsi:type="object">Smile\ElasticsuiteCatalog\Model\Category\Indexer\Fulltext\Datasource\AttributeData</item>
+                </item> -->
             </argument>
         </arguments>
-    </type>-->
+    </type>
     <!-- fim do preparo -->
     <!-- cria o handler para indexar dados -->
+    <virtualType name="solrCatalogProductSearchIndexHandler" type="TadeuRodrigues\Solr\Model\Indexer\IndexerHandler">
+        <arguments>
+            <argument name="indexName" xsi:type="string">catalog_product</argument>
+            <argument name="typeName" xsi:type="string">product</argument>
+        </arguments>
+    </virtualType>
+    <!-- ainda n sei pq usar -->
+    <virtualType name="solrCatalogCategorySearchIndexHandler" type="TadeuRodrigues\Solr\Model\Indexer\IndexerHandler">
+        <arguments>
+            <argument name="indexName" xsi:type="string">catalog_category</argument>
+            <argument name="typeName" xsi:type="string">category</argument>
+        </arguments>
+    </virtualType>
     <type name="Magento\CatalogSearch\Model\Indexer\IndexerHandlerFactory">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="solr" xsi:type="string">TadeuRodrigues\Solr\Model\Indexer\IndexerHandler</item>
+                <item name="solr" xsi:type="string">solrCatalogProductSearchIndexHandler</item>
             </argument>
         </arguments>
     </type>
